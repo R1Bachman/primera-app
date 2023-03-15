@@ -1,7 +1,23 @@
 const express = require('express');
 const app = express();
 
+require('dotenv').config()
+
 const port = process.env.PORT || 3000;
+
+//conexion a base de datos
+const mongoose = require('mongoose');
+
+
+const usuario = "bachman1"
+const password = "WIR4EqIPcNeB50rF"
+const dbName = "vet-blev"
+const uri = `mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.dyiohib.mongodb.net/${process.env.DBNAME}?retryWrites=true&w=majority`;
+
+
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(()=> console.log('conectado a mongodb')) 
+    .catch(e => console.log('error de conexión', e))
 
 //motor de plantilla con ejs
 app.set("view engine", "ejs");
@@ -18,16 +34,10 @@ app.use((req, res, next) => {
 */
 
 app.use(express.static(__dirname + "/public"))
+//rutas web
+app.use('/',require('./router/RutasWeb'))
 
-//rutas a configurar
-app.get('/', (req, res) => {
-    //res.send('Mi respuesta desde express') lo cambiamos por el uso de ejs a lo de abajo
-    res.render("index", {titulo: "mi titulo dinamico"})
-})
-
-app.get('/servicios', (req, res) => {
-    res.render("servicios", {tituloServicios: 'En pagina de servicios'})
-})
+app.use('/mascotas',require('./router/Mascotas'))
 
 app.use((req, res, next) => {
     res.status(404).render("404")
